@@ -3,6 +3,7 @@ package authentikat.jwt
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Hex
+import scala.language.implicitConversions
 
 /**
  * Json Web Algorithms for Encrypting JWS.
@@ -12,7 +13,6 @@ import org.apache.commons.codec.binary.Hex
  */
 
 object JsonWebSignature {
-
   object HexToString {
     implicit def converter(bytes: Array[Byte]): String = {
       Hex.encodeHexString(bytes)

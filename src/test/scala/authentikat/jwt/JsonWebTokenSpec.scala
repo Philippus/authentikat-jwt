@@ -1,30 +1,23 @@
 package authentikat.jwt
 
-import org.scalatest.FunSpec
-import java.util.{ Date, TimeZone }
-import java.text.SimpleDateFormat
-import org.scalatest.Matchers
+import org.scalatest.{ FunSpec, Matchers }
 
 class JsonWebTokenSpec extends FunSpec with Matchers {
-
   import org.json4s.JsonDSL._
   import org.json4s.jackson.JsonMethods._
 
   describe("JsonWebToken") {
     val header = JwtHeader("HS256")
     val claims = JwtClaimsSetMap(Map("Hey" -> "foo"))
-    val jvalueClaims = render("Hey" -> ("Hey" -> "foo"))
+    val jValueClaims = render("Hey" -> ("Hey" -> "foo"))
 
     it("should have three parts for a token created with claims map claims") {
       val result = JsonWebToken.apply(header, claims, "secretkey")
-      println(result)
-      println(result)
-      println(result)
       result.split("\\.").length should equal(3)
     }
 
     it("should have three parts for a token created with a jvalue claims") {
-      val result = JsonWebToken.apply(header, JwtClaimsSetJValue(jvalueClaims), "secretkey")
+      val result = JsonWebToken.apply(header, JwtClaimsSetJValue(jValueClaims), "secretkey")
       result.split("\\.").length should equal(3)
     }
 
@@ -37,7 +30,7 @@ class JsonWebTokenSpec extends FunSpec with Matchers {
       val expectedResult = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJIZXkiOiJmb28ifQ.fTW9f2w5okSpa7u64d6laQQbpBdgoTFvIPcx5gi70R8"
 
       val res1 = JsonWebToken.apply(header, JwtClaimsSetMap(Map("Hey" -> "foo")), "secretkey")
-      val res2 = JsonWebToken.apply(header, JwtClaimsSetJValue(("Hey" -> "foo")), "secretkey")
+      val res2 = JsonWebToken.apply(header, JwtClaimsSetJValue("Hey" -> "foo"), "secretkey")
       val res3 = JsonWebToken.apply(header, JwtClaimsSetJsonString("{\"Hey\":\"foo\"}"), "secretkey")
 
       res1 should equal(expectedResult)
@@ -48,25 +41,19 @@ class JsonWebTokenSpec extends FunSpec with Matchers {
     it("should be extracted by extractor") {
       val jwt = JsonWebToken.apply(header, claims, "secretkey")
       val result = jwt match {
-        case JsonWebToken(x, y, z) ⇒
-          true
-        case x ⇒
-          false
+        case JsonWebToken(_, _, _) ⇒ true
+        case _ ⇒ false
       }
       result should equal(true)
     }
 
     it("extracted claims set should be jvalue") {
-
       val jwt = JsonWebToken.apply(header, claims, "secretkey")
       val result = jwt match {
-        case JsonWebToken(x, y, z) ⇒
-          Some(y)
-        case x ⇒
-          None
+        case JsonWebToken(_, x, _) ⇒ Some(x)
+        case _ ⇒ None
       }
-
-      result.get should equal(JwtClaimsSetJValue(("Hey" -> "foo")))
+      result.get should equal(JwtClaimsSetJValue("Hey" -> "foo"))
     }
 
     it("should validate a token successfully if same key is used") {
@@ -91,33 +78,9 @@ class JsonWebTokenSpec extends FunSpec with Matchers {
   describe("JwtHeader") {
     it("should render to json as per spec") {
       val header = JwtHeader("algorithm", "contentType")
-      println(header.asJsonString)
-      val expectedJson = "{\"alg\":\"algorithm\",\"cty\":\"contentType\",\"typ\":\"JWT\"}"
+      val expectedJson = """{"alg":"algorithm","cty":"contentType","typ":"JWT"}"""
 
       header.asJsonString should equal(expectedJson)
-    }
-  }
-
-  describe("JwtClaimsSet") {
-
-    val date = new Date
-    val dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
-    val dateIso8601 = dateFormat.format(date)
-
-    val claimsSet = JwtClaimsSetMap(Map("privateClaim" -> "foo", "iss" -> "Issuer", "exp" -> date))
-    val claimsSetJsonString = claimsSet.asJsonString
-
-    it("should contain private claims") {
-      claimsSetJsonString should include("\"privateClaim\":\"foo\"")
-    }
-
-    it("should contain iss (Issuer) claim") {
-      claimsSetJsonString should include("\"iss\":\"Issuer\"")
-    }
-
-    it("should contain exp (Expiration time) claim as ISO8601 date") {
-      claimsSetJsonString should include("\"exp\":\"" + dateIso8601 + "\"")
     }
   }
 
@@ -131,7 +94,7 @@ class JsonWebTokenSpec extends FunSpec with Matchers {
     val jwt: String = JsonWebToken(header, claimsSet, "secretkey")
 
     val parsedClaims: Option[Map[String, String]] = jwt match {
-      case JsonWebToken(header, claimsSet, signature) ⇒
+      case JsonWebToken(_, claimsSet, _) ⇒
         claimsSet.asSimpleMap.toOption
       case _ ⇒
         None

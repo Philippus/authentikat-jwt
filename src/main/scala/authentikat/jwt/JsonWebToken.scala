@@ -1,14 +1,13 @@
 package authentikat.jwt
 
-import com.fasterxml.jackson.core.{ JsonFactory, JsonParser }
+import com.fasterxml.jackson.core.JsonParser
 import org.apache.commons.codec.binary.Base64.{ decodeBase64, encodeBase64URLSafeString }
-//import org.json4s._
 import org.json4s.jackson.JsonMethods
-
 import scala.util.control.Exception.allCatch
 
 object JsonWebToken extends JsonMethods {
   mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true)
+
   /**
    * Produces a JWT.
    * @param header
@@ -16,7 +15,6 @@ object JsonWebToken extends JsonMethods {
    * @param key
    * @return
    */
-
   def apply(header: JwtHeader, claims: JwtClaimsSet, key: String): String = {
     val encodedHeader = encodeBase64URLSafeString(header.asJsonString.getBytes("UTF-8"))
     val encodedClaims = encodeBase64URLSafeString(claims.asJsonString.getBytes("UTF-8"))
@@ -34,7 +32,6 @@ object JsonWebToken extends JsonMethods {
    * @param jwt
    * @return
    */
-
   def unapply(jwt: String): Option[(JwtHeader, JwtClaimsSetJValue, String)] = {
     jwt.split("\\.") match {
       case Array(providedHeader, providedClaims, providedSignature) ⇒
@@ -69,10 +66,9 @@ object JsonWebToken extends JsonMethods {
    * @param key
    * @return
    */
-
   def validate(jwt: String, key: String): Boolean = {
-
     import org.json4s.DefaultFormats
+
     implicit val formats = DefaultFormats
 
     jwt.split("\\.") match {
@@ -89,6 +85,4 @@ object JsonWebToken extends JsonMethods {
         false
     }
   }
-
 }
-
