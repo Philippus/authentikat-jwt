@@ -2,14 +2,12 @@ package authentikat.jwt
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import scala.util.control.Exception.allCatch
+
+import scala.util.Try
 
 case class JwtHeader(algorithm: Option[String], contentType: Option[String], typ: Option[String]) {
   def asJsonString: String = {
-    val toSerialize =
-      algorithm.map(("alg", _)) ++
-        contentType.map(("cty", _)) ++
-        typ.map(("typ", _))
+    val toSerialize = algorithm.map(("alg", _)) ++ contentType.map(("cty", _)) ++ typ.map(("typ", _))
 
     import org.json4s.native.Serialization.write
     implicit val formats = org.json4s.DefaultFormats
@@ -37,7 +35,6 @@ object JwtHeader {
     JwtHeader(alg, cty, typ)
   }
 
-  def fromJsonStringOpt(jsonString: String): Option[JwtHeader] = allCatch opt {
-    fromJsonString(jsonString)
-  }
+  def fromJsonStringOpt(jsonString: String): Option[JwtHeader] =
+    Try(fromJsonString(jsonString)).toOption
 }
