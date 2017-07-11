@@ -7,19 +7,9 @@ import scala.util.control.Exception.allCatch
 case class JwtHeader(algorithm: Option[String], contentType: Option[String], typ: Option[String]) {
   def asJsonString: String = {
     val toSerialize =
-      algorithm.map(x => ("alg" -> x)).toSeq ++
-        contentType.map(x => ("cty", x)).toSeq ++
-        typ.map(x => ("typ", x)).toSeq
-
-    val toSerialize2 =
       algorithm.map(("alg", _)) ++
         contentType.map(("cty", _)) ++
         typ.map(("typ", _))
-
-//    val map = toSerialize.toMap
-    println(toSerialize.toMap)
-    println(toSerialize2.toMap)
-    println(toSerialize.toMap == toSerialize2.toMap)
 
     import org.json4s.native.Serialization.write
     implicit val formats = org.json4s.DefaultFormats
