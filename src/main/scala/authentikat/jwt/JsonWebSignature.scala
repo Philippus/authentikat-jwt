@@ -2,7 +2,6 @@ package authentikat.jwt
 
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
-import org.apache.commons.codec.binary.Hex
 import scala.language.implicitConversions
 
 /**
@@ -13,12 +12,6 @@ import scala.language.implicitConversions
  */
 
 object JsonWebSignature {
-  object HexToString {
-    implicit def converter(bytes: Array[Byte]): String = {
-      Hex.encodeHexString(bytes)
-    }
-  }
-
   def apply(algorithm: String, data: String, key: String): Array[Byte] = {
     algorithm match {
       case "HS256" ⇒ apply(HS256, data, key)

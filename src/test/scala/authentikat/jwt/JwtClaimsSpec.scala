@@ -43,7 +43,7 @@ class JwtClaimsSpec extends FunSpec with Matchers {
       val jvalueTree = render("Hey" -> "foo")
       val tryMap = JwtClaimsSetJValue(jvalueTree).asSimpleMap
 
-      tryMap.isFailure should be(false)
+      tryMap.isSuccess should be(true)
       tryMap.get should equal(Map("Hey" -> "foo"))
     }
   }

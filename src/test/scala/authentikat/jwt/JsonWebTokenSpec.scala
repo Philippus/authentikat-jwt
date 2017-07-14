@@ -1,11 +1,10 @@
 package authentikat.jwt
 
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 import org.scalatest.{ FunSpec, Matchers }
 
 class JsonWebTokenSpec extends FunSpec with Matchers {
-  import org.json4s.JsonDSL._
-  import org.json4s.jackson.JsonMethods._
-
   describe("JsonWebToken") {
     val header = JwtHeader("HS256")
     val claims = JwtClaimsSetMap(Map("Hey" -> "foo"))
